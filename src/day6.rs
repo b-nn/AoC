@@ -2,6 +2,8 @@ use std::fmt;
 use std::time::Instant;
 use std::{fs, usize, vec};
 
+use crate::REPEAT;
+
 #[derive(Clone, Eq, PartialEq, Debug, Copy)]
 enum Direction {
     Left,
@@ -101,70 +103,89 @@ impl Guard {
     }
 }
 
-pub fn run() -> (i32, i32) {
-    let content = fs::read_to_string("day6.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
+pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
+    let mut read: Vec<u128> = vec![];
+    let mut cleanup: Vec<u128> = vec![];
+    let mut part1t: Vec<u128> = vec![];
+    let mut part2t: Vec<u128> = vec![];
 
-    let mut guard = Guard {
-        direction: Direction::Up,
-        position: vec![0, 0],
-    };
-    let mut original_guard = vec![0, 0];
+    let mut part1 = 0;
+    let mut part2 = 0;
 
-    let mut map = content
-        .lines()
-        .enumerate()
-        .map(|(y, j)| {
-            j.chars()
-                .enumerate()
-                .map(|(x, i)| match i {
-                    '#' => State::Block,
-                    '^' => {
-                        original_guard = vec![x, y];
-                        State::Empty
-                    }
-                    _ => State::Empty,
-                })
-                .collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>();
+    for _i in 0..REPEAT {
+        let now = Instant::now();
+        let content =
+            fs::read_to_string("day6.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
+        read.push(now.elapsed().as_nanos());
 
-    guard.position = original_guard.clone();
-    let path = check_path(&mut map.clone(), guard.clone()).1;
-    println!("{:?}", path);
+        let mut guard = Guard {
+            direction: Direction::Up,
+            position: vec![0, 0],
+        };
+        let mut original_guard = vec![0, 0];
 
-    let mut count = 0;
-    for i in &path {
-        let mut map = map
-            .iter()
+        let now = Instant::now();
+        let mut map = content
+            .lines()
             .enumerate()
             .map(|(y, j)| {
-                j.iter()
+                j.chars()
                     .enumerate()
-                    .map(|(x, state)| {
-                        if x == i.0 && y == i.1 {
-                            State::Block
-                        } else {
-                            state.clone()
+                    .map(|(x, i)| match i {
+                        '#' => State::Block,
+                        '^' => {
+                            original_guard = vec![x, y];
+                            State::Empty
                         }
+                        _ => State::Empty,
                     })
                     .collect::<Vec<_>>()
             })
             .collect::<Vec<_>>();
+        cleanup.push(now.elapsed().as_nanos());
 
-        if !check_path(
-            &mut map,
-            Guard {
-                direction: Direction::Up,
-                position: original_guard.clone(),
-            },
-        )
-        .0
-        {
-            count += 1;
+        let now = Instant::now();
+        guard.position = original_guard.clone();
+        let path = check_path(&mut map.clone(), guard.clone()).1;
+        part1 = path.len();
+        part1t.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
+        let mut count = 0;
+        for i in &path {
+            let mut map = map
+                .iter()
+                .enumerate()
+                .map(|(y, j)| {
+                    j.iter()
+                        .enumerate()
+                        .map(|(x, state)| {
+                            if x == i.0 && y == i.1 {
+                                State::Block
+                            } else {
+                                state.clone()
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .collect::<Vec<_>>();
+
+            if !check_path(
+                &mut map,
+                Guard {
+                    direction: Direction::Up,
+                    position: original_guard.clone(),
+                },
+            )
+            .0
+            {
+                count += 1;
+            }
         }
+        part2t.push(now.elapsed().as_nanos());
+
+        part2 = count;
     }
 
-    println!("{} {}", count, path.len());
-
-    (0, 0)
+    ((part1 as i64, part2), (read, cleanup, part1t, part2t))
 }

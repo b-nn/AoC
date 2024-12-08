@@ -88,7 +88,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         let now = Instant::now();
         for i in goals.iter().enumerate() {
             if search(&values[i.0], *i.1, true) {
-                total.0 += i.1;
+                total.1 += i.1;
             }
         }
         part2t.push(now.elapsed().as_nanos());
@@ -104,9 +104,6 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         ..1000 => 1000,
         _ => panic!("HELP!!!! WHAT THE FUCKKKKKK"),
     };
-    if test1 == test2 % t {
-        println!("{}", test2 / t);
-    }
 
     (total, (read, cleanup, part1t, part2t))
 }

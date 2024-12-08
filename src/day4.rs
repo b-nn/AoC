@@ -1,4 +1,6 @@
-use std::fs;
+use std::{fs, time::Instant};
+
+use crate::REPEAT;
 
 fn check_xmas(input: &Vec<Vec<char>>, i: (i32, i32)) -> i32 {
     let mut count = 0;
@@ -35,25 +37,42 @@ fn check_xmas(input: &Vec<Vec<char>>, i: (i32, i32)) -> i32 {
     }
 }
 
-pub fn run() -> i32 {
-    let result = 0;
-
-    let content = fs::read_to_string("day4.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
-
-    let content = content
-        .lines()
-        .map(|x| x.chars().collect::<Vec<_>>())
-        .collect::<Vec<_>>();
+pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
+    let mut read: Vec<u128> = vec![];
+    let mut cleanup: Vec<u128> = vec![];
+    let mut part1t: Vec<u128> = vec![];
+    let mut part2t: Vec<u128> = vec![];
 
     let mut count = 0;
-    for x in content.iter().enumerate() {
-        for y in x.1.iter().enumerate() {
-            if y.1 == &'A' {
-                println!("{} {}", x.0, y.0);
-                count += check_xmas(&content, (x.0 as i32, y.0 as i32));
+
+    for _i in 0..REPEAT {
+        let now = Instant::now();
+        let content =
+            fs::read_to_string("day4.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
+        read.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
+        let content = content
+            .lines()
+            .map(|x| x.chars().collect::<Vec<_>>())
+            .collect::<Vec<_>>();
+        cleanup.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
+        count = 0;
+        for x in content.iter().enumerate() {
+            for y in x.1.iter().enumerate() {
+                if y.1 == &'A' {
+                    count += check_xmas(&content, (x.0 as i32, y.0 as i32));
+                }
             }
         }
+        part1t.push(now.elapsed().as_nanos());
+        part2t.push(now.elapsed().as_nanos());
     }
 
-    count
+    (
+        (count.into(), count.into()),
+        (read, cleanup, part1t, part2t),
+    )
 }

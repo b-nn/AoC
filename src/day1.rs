@@ -5,7 +5,7 @@ use std::vec;
 
 use crate::REPEAT;
 
-pub fn run() -> ((i32, i32), (f64, f64, f64, f64)) {
+pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
     let mut result1 = 0;
     let mut result2 = 0;
     let mut read: Vec<u128> = vec![];
@@ -58,12 +58,7 @@ pub fn run() -> ((i32, i32), (f64, f64, f64, f64)) {
     }
 
     return (
-        (result1, result2),
-        (
-            read.iter().sum::<u128>() as f64 / REPEAT as f64,
-            cleanup.iter().sum::<u128>() as f64 / REPEAT as f64,
-            part1t.iter().sum::<u128>() as f64 / REPEAT as f64,
-            part2t.iter().sum::<u128>() as f64 / REPEAT as f64,
-        ),
+        (result1.into(), result2.into()),
+        (read, cleanup, part1t, part2t),
     );
 }
