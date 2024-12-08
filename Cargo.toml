@@ -6,3 +6,6 @@ debuginfo-level = 1
 jemalloc = false
 
 [dependencies]
+
+[profile.release]
+debug = 1
