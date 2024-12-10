@@ -47,6 +47,24 @@ fn search(
     Some(temp)
 }
 
+fn part_1(part: &mut i64, trails: &Vec<(usize, usize, u32)>, content: &Vec<&str>) {
+    for trail in trails {
+        let trailheads = search(content, trail, false);
+        if let Some(x) = trailheads {
+            *part += x.len() as i64;
+        }
+    }
+}
+
+fn part_2(part: &mut i64, trails: &Vec<(usize, usize, u32)>, content: &Vec<&str>) {
+    for trail in trails {
+        let trailheads = search(content, trail, false);
+        if let Some(x) = trailheads {
+            *part += x.len() as i64;
+        }
+    }
+}
+
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
     let mut read: Vec<u128> = vec![];
     let mut cleanup: Vec<u128> = vec![];
@@ -61,6 +79,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             fs::read_to_string("day10.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
         read.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let content = content.lines().collect::<Vec<_>>();
         let mut trails: Vec<(usize, usize, u32)> = vec![];
         for j in content.iter().enumerate() {
@@ -70,24 +89,17 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 }
             }
         }
+        cleanup.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
         part1 = 0;
-        for trail in &trails {
-            let trailheads = search(&content, &trail, false);
-            if let Some(x) = trailheads {
-                part1 += x.len() as i64;
-            }
-        }
+        part_1(&mut part1, &trails, &content);
+        part1t.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         part2 = 0;
-        for trail in &trails {
-            let trailheads = search(&content, trail, true);
-            if let Some(x) = trailheads {
-                part2 += x.len() as i64;
-            }
-        }
-
-        println!("{}", part1);
-        println!("{}", part2);
+        part_2(&mut part2, &trails, &content);
+        part2t.push(now.elapsed().as_nanos());
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
