@@ -6,8 +6,9 @@
 // mod day6;
 // mod day7;
 // mod day8;
+mod day10;
 mod day9;
-const REPEAT: i32 = 100;
+const REPEAT: i32 = 1;
 use colored::{ColoredString, Colorize};
 
 fn performance(
@@ -63,7 +64,8 @@ fn main() {
     // performance(day6::run(), 6);
     // performance(day7::run(), 7);
     // performance(day8::run(), 8);
-    performance(day9::run(), 9);
+    // performance(day9::run(), 9);
+    day10::run();
     // 6567376892213
     // 6607430905080
     let repeat = REPEAT.to_string().red();
