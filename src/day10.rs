@@ -2,7 +2,11 @@ use crate::REPEAT;
 use std::fs;
 use std::time::Instant;
 
-fn search(map: &Vec<&str>, trail: (usize, usize, u32)) -> Option<Vec<(usize, usize, u32)>> {
+fn search(
+    map: &Vec<&str>,
+    trail: &(usize, usize, u32),
+    count_duplicates: bool,
+) -> Option<Vec<(usize, usize, u32)>> {
     let mut output = vec![];
     let position = (trail.0 as i32, trail.1 as i32);
     let rotations = vec![(0, 1), (1, 0), (0, -1), (-1, 0)];
@@ -30,14 +34,16 @@ fn search(map: &Vec<&str>, trail: (usize, usize, u32)) -> Option<Vec<(usize, usi
     }
     let mut temp: Vec<(usize, usize, u32)> = vec![];
     for i in &output {
-        if let Some(x) = &mut search(map, *i) {
+        if let Some(x) = &mut search(map, i, count_duplicates) {
             temp.append(x);
         } else {
             return None;
         }
     }
-    temp.sort();
-    temp.dedup();
+    if !count_duplicates {
+        temp.sort();
+        temp.dedup();
+    }
     Some(temp)
 }
 
@@ -56,7 +62,6 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         read.push(now.elapsed().as_nanos());
 
         let content = content.lines().collect::<Vec<_>>();
-
         let mut trails: Vec<(usize, usize, u32)> = vec![];
         for j in content.iter().enumerate() {
             for i in j.1.chars().enumerate() {
@@ -66,16 +71,23 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             }
         }
         part1 = 0;
-        for trail in trails {
-            println!("{:?}", trail);
-            println!("{:?}", search(&content, trail));
-            let trailheads = search(&content, trail);
+        for trail in &trails {
+            let trailheads = search(&content, &trail, false);
             if let Some(x) = trailheads {
                 part1 += x.len() as i64;
             }
         }
 
+        part2 = 0;
+        for trail in &trails {
+            let trailheads = search(&content, trail, true);
+            if let Some(x) = trailheads {
+                part2 += x.len() as i64;
+            }
+        }
+
         println!("{}", part1);
+        println!("{}", part2);
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
