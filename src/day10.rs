@@ -47,6 +47,31 @@ fn search(
     Some(temp)
 }
 
+fn search_p2(map: &Vec<&str>, trail: &(usize, usize)) -> u32 {
+    let mut count = 0;
+    if map[trail.0].as_bytes()[trail.1] == b'.' {
+        return 0;
+    }
+    if map[trail.0].as_bytes()[trail.1] == b'9' {
+        return 1;
+    } else {
+        if map[trail.0 + 1].as_bytes()[trail.1] - 1 == map[trail.0].as_bytes()[trail.1] {
+            count += search_p2(map, &(trail.0 + 1, trail.1));
+        }
+        if map[trail.0 - 1].as_bytes()[trail.1] - 1 == map[trail.0].as_bytes()[trail.1] {
+            count += search_p2(map, &(trail.0 - 1, trail.1));
+        }
+        if map[trail.0].as_bytes()[trail.1 + 1] - 1 == map[trail.0].as_bytes()[trail.1] {
+            count += search_p2(map, &(trail.0, trail.1 + 1));
+        }
+        if map[trail.0].as_bytes()[trail.1 - 1] - 1 == map[trail.0].as_bytes()[trail.1] {
+            count += search_p2(map, &(trail.0, trail.1 - 1));
+        }
+    }
+
+    count
+}
+
 fn part_1(part: &mut i64, trails: &Vec<(usize, usize, u32)>, content: &Vec<&str>) {
     for trail in trails {
         let trailheads = search(content, trail, false);
@@ -56,13 +81,12 @@ fn part_1(part: &mut i64, trails: &Vec<(usize, usize, u32)>, content: &Vec<&str>
     }
 }
 
-fn part_2(part: &mut i64, trails: &Vec<(usize, usize, u32)>, content: &Vec<&str>) {
+fn part_2(part: &mut i64, trails: &Vec<(usize, usize, u32)>, content: &Vec<&str>) -> u32 {
+    let mut total = 0;
     for trail in trails {
-        let trailheads = search(content, trail, false);
-        if let Some(x) = trailheads {
-            *part += x.len() as i64;
-        }
+        total += search_p2(content, &(trail.1, trail.0));
     }
+    total
 }
 
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
@@ -100,6 +124,8 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         part2 = 0;
         part_2(&mut part2, &trails, &content);
         part2t.push(now.elapsed().as_nanos());
+
+        println!("{}", search_p2(&content, &(3, 2)));
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
