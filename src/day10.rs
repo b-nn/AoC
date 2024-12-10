@@ -124,8 +124,6 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         part2 = 0;
         part_2(&mut part2, &trails, &content);
         part2t.push(now.elapsed().as_nanos());
-
-        println!("{}", search_p2(&content, &(3, 2)));
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))

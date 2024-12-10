@@ -1,14 +1,14 @@
-// mod day1;
-// mod day2;
-// mod day3;
-// mod day4;
-// mod day5;
+mod day1;
+mod day2;
+mod day3;
+mod day4;
+mod day5;
 // mod day6;
-// mod day7;
-// mod day8;
 mod day10;
+mod day7;
+mod day8;
 mod day9;
-const REPEAT: i32 = 1;
+const REPEAT: i32 = 100;
 use colored::{ColoredString, Colorize};
 
 fn performance(
@@ -56,18 +56,16 @@ fn c(value: f64) -> ColoredString {
 }
 
 fn main() {
-    // performance(day1::run(), 1);
-    // performance(day2::run(), 2);
-    // performance(day3::run(), 3);
-    // performance(day4::run(), 4);
-    // performance(day5::run(), 5);
+    performance(day1::run(), 1);
+    performance(day2::run(), 2);
+    performance(day3::run(), 3);
+    performance(day4::run(), 4);
+    performance(day5::run(), 5);
     // performance(day6::run(), 6);
-    // performance(day7::run(), 7);
-    // performance(day8::run(), 8);
-    // performance(day9::run(), 9);
-    day10::run();
-    // 6567376892213
-    // 6607430905080
-    // let repeat = REPEAT.to_string().red();
-    // println!("Repeat: {repeat}");
+    performance(day7::run(), 7);
+    performance(day8::run(), 8);
+    performance(day9::run(), 9);
+    performance(day10::run(), 10);
+    let repeat = REPEAT.to_string().red();
+    println!("Repeat: {repeat}");
 }
