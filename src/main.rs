@@ -56,15 +56,15 @@ fn c(value: f64) -> ColoredString {
 }
 
 fn main() {
-    performance(day1::run(), 1);
-    performance(day2::run(), 2);
-    performance(day3::run(), 3);
-    performance(day4::run(), 4);
-    performance(day5::run(), 5);
+    // performance(day1::run(), 1);
+    // performance(day2::run(), 2);
+    // performance(day3::run(), 3);
+    // performance(day4::run(), 4);
+    // performance(day5::run(), 5);
     // performance(day6::run(), 6);
-    performance(day7::run(), 7);
-    performance(day8::run(), 8);
-    performance(day9::run(), 9);
+    // performance(day7::run(), 7);
+    // performance(day8::run(), 8);
+    // performance(day9::run(), 9);
     performance(day10::run(), 10);
     let repeat = REPEAT.to_string().red();
     println!("Repeat: {repeat}");
