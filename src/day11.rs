@@ -1,23 +1,26 @@
 use crate::REPEAT;
+use std::collections::HashMap;
 use std::fs;
 use std::time::Instant;
 
-fn update(input: &Vec<String>) -> Vec<String> {
-    let mut output = vec![];
-    for i in input {
-        if i == &"0" {
-            output.push("1".to_string());
+fn update(input: &mut HashMap<u64, i64>) {
+    let mut temp = HashMap::new();
+    for i in input.keys() {
+        if *i == 0 {
+            *temp.entry(1).or_insert(0) += input.get(&0).unwrap();
             continue;
         }
-        if i.len() % 2 == 0 {
-            output.push(i[..i.len() / 2].parse::<i128>().unwrap().to_string());
-            output.push(i[i.len() / 2..].parse::<i128>().unwrap().to_string());
+        if i.ilog10() % 2 == 0 {
+            let power = 10u64.pow(i.ilog10() / 2 + 1); // I stole the power trick I'm not that
+                                                       // smart
+            *temp.entry(i / power).or_insert(0) += input.get(i).unwrap();
+            *temp.entry(i % power).or_insert(0) += input.get(i).unwrap();
             continue;
         }
-        output.push((i.parse::<i128>().unwrap() * 2024).to_string());
+        *temp.entry(i * 2024).or_insert(0) += input.get(i).unwrap();
     }
 
-    output
+    *input = temp;
 }
 
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
@@ -34,19 +37,40 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             fs::read_to_string("day11.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
         read.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         content.pop();
         let content = content
             .split(' ')
             .map(|x| x.to_string())
             .collect::<Vec<String>>();
-
-        let mut stones = content;
-        for _i in 0..75 {
-            stones = update(&stones);
-            println!("{:?}", stones);
-            println!("{}", _i);
+        let mut stones: HashMap<u64, i64> = HashMap::new();
+        for i in &content {
+            *stones.entry(i.parse::<u64>().unwrap()).or_insert(0) += 1;
         }
-        println!("{}", stones.len());
+        cleanup.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
+        for _i in 0..25 {
+            update(&mut stones);
+        }
+        for j in stones.values() {
+            part1 += *j as i64;
+        }
+        part1t.push(now.elapsed().as_nanos());
+
+        let mut stones: HashMap<u64, i64> = HashMap::new();
+        for i in &content {
+            *stones.entry(i.parse::<u64>().unwrap()).or_insert(0) += 1;
+        }
+
+        let now = Instant::now();
+        for _i in 0..75 {
+            update(&mut stones);
+        }
+        for j in stones.values() {
+            part2 += *j;
+        }
+        part2t.push(now.elapsed().as_nanos());
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))

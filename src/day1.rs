@@ -12,7 +12,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
     let mut cleanup: Vec<u128> = vec![];
     let mut part1t: Vec<u128> = vec![];
     let mut part2t: Vec<u128> = vec![];
-    for i in 0..REPEAT {
+    for _i in 0..REPEAT {
         let now = Instant::now();
         let contents = fs::read_to_string("day1.txt").expect("FUCK OFFFFFF");
         read.push(now.elapsed().as_nanos());

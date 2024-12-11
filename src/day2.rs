@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fs;
 use std::time::Instant;
 use std::vec;
@@ -51,16 +50,8 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
 
         let now = Instant::now();
         total_safe = (0, 0);
-        for (index, vector) in contents_ver.iter().enumerate() {
+        for vector in contents_ver.iter() {
             if let Some(i) = is_safe(&vector) {
-                for skip_idx in 0..vector.len() {
-                    let subset: Vec<i32> = vector
-                        .iter()
-                        .enumerate()
-                        .filter(|(i, _)| *i != skip_idx)
-                        .map(|(_, &n)| n)
-                        .collect();
-                }
                 let mut tvector2 = vector.clone();
                 let mut tvector1 = vector.clone();
                 tvector2.remove(i + 1);

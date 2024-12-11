@@ -63,11 +63,9 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         result = (0, 0);
         for i in &mut content {
             let mut okay = true;
-            let mut count = 0;
 
             while !update(i, &rules) {
                 okay = false;
-                count += 1;
             }
 
             if !okay {

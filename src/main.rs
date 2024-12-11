@@ -1,11 +1,11 @@
 mod day1;
+mod day10;
+mod day11;
 mod day2;
 mod day3;
 mod day4;
 mod day5;
-// mod day6;
-mod day10;
-mod day11;
+mod day6;
 mod day7;
 mod day8;
 mod day9;
@@ -67,7 +67,7 @@ fn main() {
     // performance(day8::run(), 8);
     // performance(day9::run(), 9);
     // performance(day10::run(), 10);
-    day11::run();
+    performance(day11::run(), 11);
     let repeat = REPEAT.to_string().red();
     println!("Repeat: {repeat}");
 }

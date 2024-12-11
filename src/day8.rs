@@ -1,6 +1,5 @@
 use crate::REPEAT;
 use std::fs;
-use std::iter::Inspect;
 use std::time::Instant;
 
 fn get_antennae(input: &Vec<(&char, (i64, i64))>, filter: &char) -> Vec<(i64, i64)> {

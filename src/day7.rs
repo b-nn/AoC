@@ -1,17 +1,15 @@
 use crate::REPEAT;
-use core::{f64, panic};
+use core::panic;
 use std::time::Instant;
 use std::{fs, i64};
 
-fn search(mut values: &[i64], mut goal: i64, concatenate: bool) -> bool {
+fn search(values: &[i64], goal: i64, concatenate: bool) -> bool {
     if values.len() == 0 {
         if goal == 0 {
             return true;
         }
         return false;
     }
-
-    let mut b = 0;
 
     if concatenate {
         let t = match values[0] {
@@ -93,17 +91,6 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         }
         part2t.push(now.elapsed().as_nanos());
     }
-
-    let test1 = 353;
-    let test2 = 353;
-
-    let t = match test1 {
-        ..1 => 1,
-        ..10 => 10,
-        ..100 => 100,
-        ..1000 => 1000,
-        _ => panic!("HELP!!!! WHAT THE FUCKKKKKK"),
-    };
 
     (total, (read, cleanup, part1t, part2t))
 }

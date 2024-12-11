@@ -1,9 +1,8 @@
-use std::fmt;
+#![allow(dead_code)]
 use std::time::Instant;
 use std::{fs, usize, vec};
 
 use crate::REPEAT;
-
 #[derive(Clone, Eq, PartialEq, Debug, Copy)]
 enum Direction {
     Left,
@@ -125,7 +124,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         let mut original_guard = vec![0, 0];
 
         let now = Instant::now();
-        let mut map = content
+        let map = content
             .lines()
             .enumerate()
             .map(|(y, j)| {
