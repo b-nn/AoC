@@ -69,7 +69,7 @@ fn main() {
     // performance(day9::run(), 9);
     // performance(day10::run(), 10);
     // performance(day11::run(), 11);
-    day12::run();
+    performance(day12::run(), 12);
     let repeat = REPEAT.to_string().red();
     println!("Repeat: {repeat}");
 }

@@ -103,7 +103,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
     let mut cleanup: Vec<u128> = vec![];
     let mut part1t: Vec<u128> = vec![];
     let mut part2t: Vec<u128> = vec![];
-    let mut part1: i64 = 0;
+    let mut part1: i32 = 0;
     let mut part2: i64 = 0;
 
     for _i in 0..REPEAT {
@@ -112,33 +112,42 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             fs::read_to_string("day12.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
         read.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut content = content
             .lines()
             .map(|x| x.chars().collect::<Vec<_>>())
             .collect::<Vec<_>>();
+        cleanup.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut searched = vec![];
-        let mut total = 0;
-        let mut output = "".to_owned();
         for row in 1..content.len() - 1 {
             for column in 1..content[0].len() - 1 {
-                let plant = content[row][column];
-                if plant == 'R' {
-                    output.push_str(&get_corners(&content, (row, column), plant).to_string());
-                } else {
-                    output.push('.');
-                }
                 if searched.contains(&(row, column)) {
                     continue;
                 }
+                let plant = content[row][column];
                 let search = search_p2(&content, (row, column), plant, &mut searched);
-                total += search.0 * search.1;
-                println!("{:?} {}", search, content[row][column]);
+                part1 += search.0 * search.1;
             }
-            output.push_str("\n");
         }
-        println!("{}", total);
+        part1t.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
+        let mut searched = vec![];
+        for row in 1..content.len() - 1 {
+            for column in 1..content[0].len() - 1 {
+                if searched.contains(&(row, column)) {
+                    continue;
+                }
+                let plant = content[row][column];
+                let search = search_p2(&content, (row, column), plant, &mut searched);
+                part1 += search.0 * search.1;
+            }
+        }
+
+        part2t.push(now.elapsed().as_nanos());
     }
 
-    ((part1, part2), (read, cleanup, part1t, part2t))
+    ((part1.into(), part2), (read, cleanup, part1t, part2t))
 }
