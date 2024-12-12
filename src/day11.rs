@@ -41,11 +41,11 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         content.pop();
         let content = content
             .split(' ')
-            .map(|x| x.to_string())
-            .collect::<Vec<String>>();
+            .map(|x| x.parse::<u64>().unwrap())
+            .collect::<Vec<u64>>();
         let mut stones: HashMap<u64, i64> = HashMap::new();
         for i in &content {
-            *stones.entry(i.parse::<u64>().unwrap()).or_insert(0) += 1;
+            *stones.entry(*i).or_insert(0) += 1;
         }
         cleanup.push(now.elapsed().as_nanos());
 
@@ -60,7 +60,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
 
         let mut stones: HashMap<u64, i64> = HashMap::new();
         for i in &content {
-            *stones.entry(i.parse::<u64>().unwrap()).or_insert(0) += 1;
+            *stones.entry(*i).or_insert(0) += 1;
         }
 
         let now = Instant::now();
