@@ -3,12 +3,11 @@ use std::fs;
 use std::time::Instant;
 
 // uses rc coordinates
-fn search(
+fn search_p2(
     map: &mut Vec<Vec<char>>,
     position: (usize, usize),
     plant: char,
     searched: &mut Vec<(usize, usize)>,
-    direction: (i32, i32),
 ) -> (i32, i32) {
     fn get_corners(map: &mut Vec<Vec<char>>, pos: (usize, usize), p: char) -> i64 {
         let mut total = 0;
@@ -26,27 +25,66 @@ fn search(
         total
     }
 
+    get_corners(map, position, plant);
+
     if searched.contains(&position) {
         return (0, 0);
     }
     searched.push(position);
     let up = if map[position.0 + 1][position.1] == plant {
-        search(map, (position.0 + 1, position.1), plant, searched, (1, 0))
+        search_p2(map, (position.0 + 1, position.1), plant, searched)
     } else {
         (0, 1)
     };
     let down = if map[position.0 - 1][position.1] == plant {
-        search(map, (position.0 - 1, position.1), plant, searched, (-1, 0))
+        search_p2(map, (position.0 - 1, position.1), plant, searched)
     } else {
         (0, 1)
     };
     let right = if map[position.0][position.1 + 1] == plant {
-        search(map, (position.0, position.1 + 1), plant, searched, (0, 1))
+        search_p2(map, (position.0, position.1 + 1), plant, searched)
     } else {
         (0, 1)
     };
     let left = if map[position.0][position.1 - 1] == plant {
-        search(map, (position.0, position.1 - 1), plant, searched, (0, -1))
+        search_p2(map, (position.0, position.1 - 1), plant, searched)
+    } else {
+        (0, 1)
+    };
+
+    (
+        up.0 + down.0 + right.0 + left.0 + 1,
+        up.1 + down.1 + right.1 + left.1,
+    )
+}
+
+fn search_p1(
+    map: &mut Vec<Vec<char>>,
+    position: (usize, usize),
+    plant: char,
+    searched: &mut Vec<(usize, usize)>,
+) -> (i32, i32) {
+    if searched.contains(&position) {
+        return (0, 0);
+    }
+    searched.push(position);
+    let up = if map[position.0 + 1][position.1] == plant {
+        search_p1(map, (position.0 + 1, position.1), plant, searched)
+    } else {
+        (0, 1)
+    };
+    let down = if map[position.0 - 1][position.1] == plant {
+        search_p1(map, (position.0 - 1, position.1), plant, searched)
+    } else {
+        (0, 1)
+    };
+    let right = if map[position.0][position.1 + 1] == plant {
+        search_p1(map, (position.0, position.1 + 1), plant, searched)
+    } else {
+        (0, 1)
+    };
+    let left = if map[position.0][position.1 - 1] == plant {
+        search_p1(map, (position.0, position.1 - 1), plant, searched)
     } else {
         (0, 1)
     };
@@ -84,7 +122,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                     continue;
                 }
                 let plant = content[row][column];
-                let search = search(&mut content, (row, column), plant, &mut searched, (0, 0));
+                let search = search_p1(&mut content, (row, column), plant, &mut searched);
                 total += search.0 * search.1;
                 println!("{:?} {}", search, content[row][column]);
             }
