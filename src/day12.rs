@@ -2,31 +2,34 @@ use crate::REPEAT;
 use std::fs;
 use std::time::Instant;
 
+fn get_corners(map: &Vec<Vec<char>>, pos: (usize, usize), p: char) -> i32 {
+    let mut total = 0;
+    for i in 0..2 {
+        let i: i32 = i * 2 - 1;
+        for j in 0..2 {
+            let j: i32 = j * 2 - 1;
+            let matches = map[(pos.0 as i32 + i) as usize][pos.1] == map[pos.0][pos.1];
+            let corner = if matches {
+                (map[pos.0][(pos.1 as i32 + j) as usize] == map[pos.0][pos.1]
+                    && map[pos.0][pos.1]
+                        != map[(pos.0 as i32 + i) as usize][(pos.1 as i32 + j) as usize])
+                    as i32
+            } else {
+                (map[pos.0][(pos.1 as i32 + j) as usize] != map[pos.0][pos.1]) as i32
+            };
+            total += corner;
+        }
+    }
+    total
+}
+
 // uses rc coordinates
 fn search_p2(
-    map: &mut Vec<Vec<char>>,
+    map: &Vec<Vec<char>>,
     position: (usize, usize),
     plant: char,
     searched: &mut Vec<(usize, usize)>,
 ) -> (i32, i32) {
-    fn get_corners(map: &mut Vec<Vec<char>>, pos: (usize, usize), p: char) -> i64 {
-        let mut total = 0;
-        for i in 0..2 {
-            let i = i * 2 - 1;
-            for j in 0..2 {
-                let j = j * 2 - 1;
-                let matches = (map[pos.0 + i][pos.1 + j] == p) as i64
-                    + (map[pos.0 + i][pos.1] == p) as i64
-                    + (map[pos.0][pos.1 + j] == p) as i64
-                    + (map[pos.0][pos.1] == p) as i64;
-                total += matches % 2;
-            }
-        }
-        total
-    }
-
-    get_corners(map, position, plant);
-
     if searched.contains(&position) {
         return (0, 0);
     }
@@ -34,27 +37,27 @@ fn search_p2(
     let up = if map[position.0 + 1][position.1] == plant {
         search_p2(map, (position.0 + 1, position.1), plant, searched)
     } else {
-        (0, 1)
+        (0, 0)
     };
     let down = if map[position.0 - 1][position.1] == plant {
         search_p2(map, (position.0 - 1, position.1), plant, searched)
     } else {
-        (0, 1)
+        (0, 0)
     };
     let right = if map[position.0][position.1 + 1] == plant {
         search_p2(map, (position.0, position.1 + 1), plant, searched)
     } else {
-        (0, 1)
+        (0, 0)
     };
     let left = if map[position.0][position.1 - 1] == plant {
         search_p2(map, (position.0, position.1 - 1), plant, searched)
     } else {
-        (0, 1)
+        (0, 0)
     };
 
     (
         up.0 + down.0 + right.0 + left.0 + 1,
-        up.1 + down.1 + right.1 + left.1,
+        up.1 + down.1 + right.1 + left.1 + get_corners(map, position, plant),
     )
 }
 
@@ -116,16 +119,23 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
 
         let mut searched = vec![];
         let mut total = 0;
+        let mut output = "".to_owned();
         for row in 1..content.len() - 1 {
             for column in 1..content[0].len() - 1 {
+                let plant = content[row][column];
+                if plant == 'R' {
+                    output.push_str(&get_corners(&content, (row, column), plant).to_string());
+                } else {
+                    output.push('.');
+                }
                 if searched.contains(&(row, column)) {
                     continue;
                 }
-                let plant = content[row][column];
-                let search = search_p1(&mut content, (row, column), plant, &mut searched);
+                let search = search_p2(&content, (row, column), plant, &mut searched);
                 total += search.0 * search.1;
                 println!("{:?} {}", search, content[row][column]);
             }
+            output.push_str("\n");
         }
         println!("{}", total);
     }
