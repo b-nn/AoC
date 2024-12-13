@@ -29,6 +29,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             fs::read_to_string("day13.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
         read.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let t = content
             .replace("X+", "")
             .replace("Y+", "")
@@ -40,6 +41,9 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         let content = t.lines().filter(|x| *x != "");
         let mut a: (f64, f64) = (0.0, 0.0);
         let mut b: (f64, f64) = (0.0, 0.0);
+        cleanup.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
         for (index, item) in content.enumerate() {
             let mut t = item.split(", ");
             let x = t.next().unwrap().parse::<f64>().unwrap();
@@ -59,6 +63,8 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 }
             }
         }
+        part1t.push(0);
+        part2t.push(now.elapsed().as_nanos());
     }
 
     (
