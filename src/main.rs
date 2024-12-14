@@ -11,7 +11,7 @@ mod day6;
 mod day7;
 mod day8;
 mod day9;
-const REPEAT: i32 = 1000;
+const REPEAT: i32 = 10000;
 use colored::{ColoredString, Colorize};
 
 fn performance(

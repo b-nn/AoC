@@ -9,7 +9,6 @@ fn counts(a: (f64, f64), b: (f64, f64), total: (f64, f64)) -> Option<(f64, f64)>
 
     if (b_presses.round() - b_presses).abs() < 0.0001 {
         let a_presses = (total.0 - b.0 * b_presses) / a.0;
-        if (a_presses.round() - a_presses).abs() < 0.0001 {}
         return Some((a_presses, b_presses));
     }
     None
@@ -38,16 +37,21 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             .replace("Button A: ", "")
             .replace("Button B: ", "")
             .replace("Prize: ", "");
-        let content = t.lines().filter(|x| *x != "");
+        let content = t.lines().filter(|x| *x != "").map(|x| {
+            let mut t = x.split(", ");
+            (
+                t.next().unwrap().parse::<f64>().unwrap(),
+                t.next().unwrap().parse::<f64>().unwrap(),
+            )
+        });
         let mut a: (f64, f64) = (0.0, 0.0);
         let mut b: (f64, f64) = (0.0, 0.0);
         cleanup.push(now.elapsed().as_nanos());
 
         let now = Instant::now();
         for (index, item) in content.enumerate() {
-            let mut t = item.split(", ");
-            let x = t.next().unwrap().parse::<f64>().unwrap();
-            let y = t.next().unwrap().parse::<f64>().unwrap();
+            let x = item.0;
+            let y = item.1;
             match index % 3 {
                 0 => a = (x, y),
                 1 => b = (x, y),
