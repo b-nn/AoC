@@ -43,7 +43,6 @@ fn check_blocks(map: &[[i32; USIZE_WIDTH]; USIZE_HEIGHT]) -> bool {
                 if is_ones {
                     index = column;
                     found = true;
-                    println!("FUCKKKKKK");
                     break;
                 }
             }
@@ -80,6 +79,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             .replace("v=", "");
         read.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut robots = content
             .lines()
             .map(|x| {
@@ -93,8 +93,9 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 (t.next().unwrap(), t.next().unwrap())
             })
             .collect::<Vec<_>>();
-        let content = content.lines().collect::<Vec<_>>();
+        cleanup.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut q1 = 0;
         let mut q2 = 0;
         let mut q3 = 0;
@@ -124,33 +125,19 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 }
             }
         }
+        part1 = q1 * q2 * q3 * q4;
+        part1t.push(now.elapsed().as_nanos());
 
-        let found = false;
-        for i in 0..10000 {
+        let now = Instant::now();
+        for i in 0..100000 {
             step(&mut robots);
             let r = generate_list(&robots);
             if check_blocks(&r) {
-                println!("{}", i);
-                let mut output = "".to_owned();
-                for row in generate_list(&robots) {
-                    for column in row {
-                        if column != 0 {
-                            output.push_str(&column.to_string());
-                        } else {
-                            output.push(' ');
-                        }
-                    }
-                    output.push_str("\n");
-                }
-                println!("{}", output);
-                println!("{}", i);
+                part2 = i + 1;
+                break;
             }
         }
-
-        part1 = q1 * q2 * q3 * q4;
-
-        println!("{}", part1);
-        println!("{}  {}", WIDTH, HEIGHT);
+        part2t.push(now.elapsed().as_nanos());
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
