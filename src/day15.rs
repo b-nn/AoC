@@ -91,6 +91,18 @@ fn check_empty_p2(
     );
 }
 
+fn count_boxes(map: &Vec<Vec<u8>>) -> usize {
+    let mut total = 0;
+    for row in map.iter().enumerate() {
+        for item in row.1.iter().enumerate() {
+            if *item.1 == b'[' || *item.1 == b'O' {
+                total += row.0 * 100 + item.0;
+            }
+        }
+    }
+    total
+}
+
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
     let mut read: Vec<u128> = vec![];
     let mut cleanup: Vec<u128> = vec![];
@@ -107,6 +119,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             fs::read_to_string("day15_p2.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
         read.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut robot: (i32, i32);
         let mut robot_origin = (0, 0);
         let mut map_p1 = content
@@ -121,20 +134,6 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                             b'.'
                         }
                         _ => y,
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .collect::<Vec<_>>();
-        let temp = content
-            .lines()
-            .map(|x| {
-                x.bytes()
-                    .map(|y| match y {
-                        b'@' => "..",
-                        b'#' => "##",
-                        b'O' => "[]",
-                        b'.' => "..",
-                        _ => panic!("invalid input"),
                     })
                     .collect::<Vec<_>>()
             })
@@ -162,7 +161,6 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 }
             }
         }
-        println!("{:?}", moves);
         let moves = moves
             .trim()
             .replace("\n", "")
@@ -175,9 +173,10 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 x => panic!("HUHHHHHH {}", x),
             })
             .collect::<Vec<_>>();
+        cleanup.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         robot = robot_origin;
-        println!("{:?}", robot);
         for direction in &moves {
             let check = check_empty_p1(&map_p1, direction, robot, 0);
             if check.0 {
@@ -188,15 +187,16 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 map_p1[robot.0 as usize][robot.1 as usize] = b'.';
             }
         }
+        part1 = count_boxes(&map_p1) as i64;
+        part1t.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         robot = (robot_origin.0, robot_origin.1 * 2);
-        println!("{:?}", robot_origin);
         for direction in &moves {
             let mut boxes = vec![];
             let check = check_empty_p2(&map_p2, direction, robot, 0, &mut boxes);
             if check {
                 robot = (robot.0 + direction.0, robot.1 + direction.1);
-                println!("can move {:?}", direction);
                 for i in &boxes {
                     map_p2[i.0 as usize][i.1 as usize] = b'.';
                     map_p2[i.0 as usize][i.1 as usize + 1] = b'.';
@@ -205,29 +205,10 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                     map_p2[(i.0 + direction.0) as usize][(i.1 + direction.1) as usize] = b'[';
                     map_p2[(i.0 + direction.0) as usize][(i.1 + direction.1) as usize + 1] = b']';
                 }
-            } else {
-                println!("can't move {:?}", direction);
             }
-
-            part2 = 0;
-            let mut output = "".to_owned();
-            for row in map_p2.iter().enumerate() {
-                for item in row.1.iter().enumerate() {
-                    if row.0 == robot.0 as usize && item.0 == robot.1 as usize {
-                        output.push('@');
-                        continue;
-                    }
-                    output.push(*item.1 as char);
-                    if *item.1 == b'[' {
-                        part2 += (row.0 * 100 + item.0) as i64;
-                    }
-                }
-                output.push_str("\n");
-            }
-            println!("{}", output);
         }
-
-        println!("{:?}", part2);
+        part2 = count_boxes(&map_p2) as i64;
+        part2t.push(now.elapsed().as_nanos());
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
