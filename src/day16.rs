@@ -121,6 +121,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             fs::read_to_string("day16.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
         read.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut origin = (0, 0);
         let mut end = (0, 0);
         let map = content
@@ -162,7 +163,9 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 }
             }
         }
+        cleanup.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut searching = vec![(0, (origin))];
         let mut searched = vec![];
         while !searching.is_empty() {
@@ -176,7 +179,10 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             searching.remove(0);
             searching.sort();
         }
+        part1 = vertices[end.0][end.1].0 as i64;
+        part1t.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut searching = vec![(0, (end))];
         let mut searched = vec![];
         while !searching.is_empty() {
@@ -190,20 +196,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             searching.remove(0);
             searching.sort();
         }
-        for row in &vertices_p2 {
-            for i in row {
-                print!("{:7} ", i.0);
-            }
-            println!("");
-        }
-        println!("");
-        for row in &vertices {
-            for i in row {
-                print!("{:7} ", i.0);
-            }
-            println!("");
-        }
-        println!("");
+
         let mut seats = 0;
         for row in 0..vertices.len() {
             for i in 0..vertices[row].len() {
@@ -211,14 +204,11 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                     || vertices[row][i].0 + vertices_p2[row][i].0 + 1000 == vertices[end.0][end.1].0
                 {
                     seats += 1;
-                    print!("{:8} ", 0);
-                } else {
-                    print!("{:8} ", vertices[row][i].0 + vertices_p2[row][i].0);
                 }
             }
-            println!("");
         }
-        println!("{:?}", seats);
+        part2 = seats;
+        part2t.push(now.elapsed().as_nanos());
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
