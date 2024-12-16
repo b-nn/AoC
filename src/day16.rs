@@ -2,6 +2,41 @@ use crate::REPEAT;
 use std::fs;
 use std::time::Instant;
 
+fn search_p2(vertices: &Vec<Vec<(i32, (i32, i32))>>, position: (usize, usize)) -> i32 {
+    let mut total = 0;
+    let v = vertices[position.0][position.1].0;
+    println!("{:?} {}", position, v);
+    if vertices[position.0][position.1 + 1].0 < v
+        || (vertices[position.0][position.1 + 1].0 + 2 == vertices[position.0][position.1 - 1].0
+            && vertices[position.0][position.1 + 1].1 == (0, -1)
+            && v < 999999)
+    {
+        total += search_p2(vertices, (position.0, position.1 + 1));
+    }
+    if vertices[position.0][position.1 - 1].0 < v
+        || (vertices[position.0][position.1 - 1].0 + 2 == vertices[position.0][position.1 + 1].0
+            && vertices[position.0][position.1 - 1].1 == (0, 1)
+            && v < 999999)
+    {
+        total += search_p2(vertices, (position.0, position.1 - 1));
+    }
+    if vertices[position.0 + 1][position.1].0 < v
+        || (vertices[position.0 + 1][position.1].0 + 2 == vertices[position.0 - 1][position.1].0
+            && vertices[position.0 + 1][position.1].1 == (-1, 0)
+            && v < 999999)
+    {
+        total += search_p2(vertices, (position.0 + 1, position.1));
+    }
+    if vertices[position.0 - 1][position.1].0 < v
+        || (vertices[position.0 - 1][position.1].0 + 2 == vertices[position.0 + 1][position.1].0
+            && vertices[position.0 - 1][position.1].1 == (1, 0)
+            && v < 999999)
+    {
+        total += search_p2(vertices, (position.0 - 1, position.1));
+    }
+    total + 1
+}
+
 fn search(
     map: &Vec<Vec<u8>>,
     index: (usize, usize),
@@ -110,13 +145,20 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             .collect::<Vec<_>>();
 
         let mut vertices: Vec<Vec<(i32, (i32, i32))>> = vec![];
+        let mut vertices_p2: Vec<Vec<(i32, (i32, i32))>> = vec![];
         for row in 0..map.len() {
             vertices.push(vec![]);
+            vertices_p2.push(vec![]);
             for column in 0..map[row].len() {
                 if (row, column) == origin {
                     vertices[row].push((0, (0, 1)));
+                    vertices_p2[row].push((9999999, (0, 0)));
+                } else if (row, column) == end {
+                    vertices[row].push((9999999, (0, 0)));
+                    vertices_p2[row].push((0, (1, 0)));
                 } else {
                     vertices[row].push((9999999, (0, 0)));
+                    vertices_p2[row].push((9999999, (0, 0)));
                 }
             }
         }
@@ -124,7 +166,6 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         let mut searching = vec![(0, (origin))];
         let mut searched = vec![];
         while !searching.is_empty() {
-            println!("{:?}", searching);
             search(
                 &map,
                 searching[0].1,
@@ -134,18 +175,50 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             );
             searching.remove(0);
             searching.sort();
-            println!("{:?}", searching);
         }
 
+        let mut searching = vec![(0, (end))];
+        let mut searched = vec![];
+        while !searching.is_empty() {
+            search(
+                &map,
+                searching[0].1,
+                &mut vertices_p2,
+                &mut searched,
+                &mut searching,
+            );
+            searching.remove(0);
+            searching.sort();
+        }
+        for row in &vertices_p2 {
+            for i in row {
+                print!("{:7} ", i.0);
+            }
+            println!("");
+        }
+        println!("");
         for row in &vertices {
             for i in row {
                 print!("{:7} ", i.0);
             }
             println!("");
         }
-
-        println!("{:?}", origin);
-        println!("{:?}", vertices[end.0][end.1]);
+        println!("");
+        let mut seats = 0;
+        for row in 0..vertices.len() {
+            for i in 0..vertices[row].len() {
+                if vertices[row][i].0 + vertices_p2[row][i].0 == vertices[end.0][end.1].0
+                    || vertices[row][i].0 + vertices_p2[row][i].0 + 1000 == vertices[end.0][end.1].0
+                {
+                    seats += 1;
+                    print!("{:8} ", 0);
+                } else {
+                    print!("{:8} ", vertices[row][i].0 + vertices_p2[row][i].0);
+                }
+            }
+            println!("");
+        }
+        println!("{:?}", seats);
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
