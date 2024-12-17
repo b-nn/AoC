@@ -2,11 +2,12 @@
 name = "AoC"
 version = "0.1.0"
 edition = "2021"
-debuginfo-level = 1
 jemalloc = false
 
 [dependencies]
 colored = "2.1.0"
 
 [profile.release]
-debug = 1
+debug = true
+debuginfo-level = 2
+opt-level = 3
