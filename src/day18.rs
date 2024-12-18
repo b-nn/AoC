@@ -10,22 +10,6 @@ fn search(
     to_search: &mut Vec<(u32, (usize, usize))>,
     searched: &Vec<(usize, usize)>,
 ) {
-    for row in 0..map.len() {
-        for item in 0..map.len() {
-            if (row, item) == p {
-                print!("@");
-                continue;
-            }
-            match map[row][item] {
-                0 => print!(" "),
-                10000 => print!("#"),
-                _ => print!("{}", map[row][item] % 10),
-            }
-        }
-        println!();
-    }
-    println!("{:?}", p);
-    println!();
     let curr = map[p.0][p.1];
     if map[p.0][p.1 + 1] == 0 {
         if !searched.contains(&(p.0, p.1 + 1)) {
@@ -89,14 +73,25 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         for i in &values[0..1024] {
             grid[i[1] + 1][i[0] + 1] = 10000;
         }
-        let mut to_search = vec![(0, (1, 1))];
-        let mut searched = vec![];
-        while !to_search.is_empty() {
-            search(&mut grid, to_search[0].1, &mut to_search, &searched);
-            searched.push(to_search[0].1);
-            to_search.remove(0);
+        let mut index = 1024;
+        loop {
+            let i = &values[index];
+            grid[i[1] + 1][i[0] + 1] = 10000;
+            let mut temp_grid = grid.clone();
+            let mut to_search = vec![(0, (1, 1))];
+            let mut searched = vec![];
+            while !to_search.is_empty() {
+                search(&mut temp_grid, to_search[0].1, &mut to_search, &searched);
+                searched.push(to_search[0].1);
+                to_search.remove(0);
+            }
+            println!("{} {} oh", temp_grid[71][71], index);
+            if temp_grid[71][71] == 0 {
+                break;
+            }
+            index += 1;
         }
-        println!("{} oh", grid[71][71]);
+        println!("{:?}", values[index]);
         read.push(now.elapsed().as_nanos());
     }
 
