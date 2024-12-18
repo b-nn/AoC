@@ -11,7 +11,6 @@ fn test(value: u64) -> u64 {
 fn get_input(goal: &[u64], start: u64) -> (Option<u64>, u32) {
     let mut temp = start << 3;
     for i in 0..8 {
-        println!("{} {:b}", test(temp + i), temp + i);
         if test(temp + i) == goal[0] {
             if goal.len() == 1 {
                 return (Some(temp + i), 0);
@@ -33,7 +32,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
     let mut part1t: Vec<u128> = vec![];
     let mut part2t: Vec<u128> = vec![];
     let mut part1: i64 = 0;
-    let mut part2: i64 = 0;
+    let mut part2: u64 = 0;
 
     for _i in 0..REPEAT {
         let now = Instant::now();
@@ -41,6 +40,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             fs::read_to_string("day17.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
         read.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let content = content.lines().collect::<Vec<_>>();
         let mut a = content[0]
             .replace("Register A: ", "")
@@ -59,6 +59,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             .split(',')
             .map(|x| x.parse::<usize>().unwrap())
             .collect::<Vec<_>>();
+        cleanup.push(now.elapsed().as_nanos());
 
         fn combo<'a>(value: usize, a: &usize, b: &usize, c: &usize) -> usize {
             match value {
@@ -73,14 +74,13 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             }
         }
 
+        let now = Instant::now();
         let mut desired = [2, 4, 1, 1, 7, 5, 0, 3, 4, 3, 1, 6, 5, 5, 3, 0];
         desired.reverse();
-        let test_input = get_input(&desired, 0b0);
-        println!("{:?} FUCKKKK", test_input);
-        println!("{:?} FUCKKKK", test(0b10));
-        a = test_input.0.unwrap() as usize;
-        a = 247839539763386;
+        part2 = get_input(&desired, 0b0).0.unwrap();
+        part2t.push(now.elapsed().as_nanos());
 
+        let now = Instant::now();
         let mut pointer = 0;
         while pointer < instructions.len() {
             match instructions[pointer] {
@@ -93,7 +93,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                     }
                 }
                 4 => b = b ^ c,
-                5 => print!("{}, ", combo(instructions[pointer + 1], &a, &b, &c) % 8),
+                5 => print!("{},", combo(instructions[pointer + 1], &a, &b, &c) % 8),
                 6 => b = a / (2usize.pow(combo(instructions[pointer + 1], &a, &b, &c) as u32)),
                 7 => c = a / (2usize.pow(combo(instructions[pointer + 1], &a, &b, &c) as u32)),
                 _ => panic!("INVALID OPTCODE"),
@@ -101,8 +101,8 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             pointer += 2;
         }
         println!("");
-        println!("{:?}", instructions);
+        part1t.push(now.elapsed().as_nanos());
     }
 
-    ((part1, part2), (read, cleanup, part1t, part2t))
+    ((part1, part2 as i64), (read, cleanup, part1t, part2t))
 }
