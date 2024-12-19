@@ -1,22 +1,39 @@
 use crate::REPEAT;
+use std::collections::HashMap;
 use std::fs;
 use std::time::Instant;
 
-fn check<'a>(available: &'a Vec<&str>, goal: &str, depth: i32) -> i32 {
+fn check<'a>(
+    available: &'a Vec<&str>,
+    goal: &'a str,
+    depth: i32,
+    map: &mut HashMap<&'a str, i64>,
+) -> i64 {
     if goal == "" {
         return 1;
     }
+    let mut total = 0;
     for pattern in available {
         if pattern.len() > goal.len() {
             continue;
         }
         if goal[goal.len() - pattern.len()..] == **pattern {
-            if check(available, &goal[..goal.len() - pattern.len()], depth + 1) == 1 {
-                return 1;
+            if let Some(x) = map.get(&goal[..goal.len() - pattern.len()]) {
+                total += x;
+            } else {
+                let temp = check(
+                    available,
+                    &goal[..goal.len() - pattern.len()],
+                    depth + 1,
+                    map,
+                );
+
+                total += temp;
+                map.insert(&goal[..goal.len() - pattern.len()], temp);
             }
         }
     }
-    0
+    total
 }
 
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
@@ -38,10 +55,13 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         let desired = &content[2..];
         println!("{:?} {:?}", available, desired);
         let mut total = 0;
+        let now = Instant::now();
         for i in desired {
-            total += check(&available, i, 0);
+            total += check(&available, i, 0, &mut HashMap::new());
+            println!("{}", i);
         }
-        println!("{}", total);
+        println!("{}", now.elapsed().as_micros());
+        println!("total: {}", total);
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
