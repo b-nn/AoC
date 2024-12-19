@@ -2,29 +2,21 @@ use crate::REPEAT;
 use std::fs;
 use std::time::Instant;
 
-fn check<'a>(available: &'a Vec<&str>, goal: &str, depth: i32) -> Option<Vec<&'a str>> {
-    let mut output = vec![];
+fn check<'a>(available: &'a Vec<&str>, goal: &str, depth: i32) -> i32 {
     if goal == "" {
-        return Some(output);
+        return 1;
     }
     for pattern in available {
         if pattern.len() > goal.len() {
             continue;
         }
         if goal[goal.len() - pattern.len()..] == **pattern {
-            let mut t = check(available, &goal[..goal.len() - pattern.len()], depth + 1);
-            if let Some(x) = &mut t {
-                output.append(x);
-                output.push(pattern);
-                break;
+            if check(available, &goal[..goal.len() - pattern.len()], depth + 1) == 1 {
+                return 1;
             }
         }
     }
-    if output.len() == 0 {
-        None
-    } else {
-        Some(output)
-    }
+    0
 }
 
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
@@ -47,10 +39,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         println!("{:?} {:?}", available, desired);
         let mut total = 0;
         for i in desired {
-            if let Some(x) = check(&available, i, 0) {
-                total += 1;
-                println!("{:?} {}", x, i);
-            }
+            total += check(&available, i, 0);
         }
         println!("{}", total);
     }
