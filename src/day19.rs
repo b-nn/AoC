@@ -24,11 +24,6 @@ fn check_p1<'a>(available: &'a Vec<Vec<&[u8]>>, goal: &'a [u8]) -> i64 {
     if goal.is_empty() {
         return 1;
     }
-    if goal.len() <= available.len() {
-        if available[goal.len() - 1].contains(&goal) {
-            return 1;
-        }
-    }
     for len in 0..8 {
         if len >= goal.len() {
             return 0;
@@ -43,7 +38,7 @@ fn check_p1<'a>(available: &'a Vec<Vec<&[u8]>>, goal: &'a [u8]) -> i64 {
 }
 
 fn check<'a>(
-    available: &Vec<&[u8]>,
+    available: &Vec<Vec<&[u8]>>,
     goal: &'a [u8],
     r: bool,
     map: &mut HashMap<&'a [u8], i64>,
@@ -52,28 +47,50 @@ fn check<'a>(
         return 1;
     }
     let mut total = 0;
-    for pattern in available {
-        if pattern.len() > goal.len() {
-            continue;
+    for len in 0..8 {
+        if len >= goal.len() {
+            break;
         }
-        if goal[goal.len() - pattern.len()..] == **pattern {
-            let t = &goal[..goal.len() - pattern.len()];
-            if r {
-                if check(available, t, r, map) == 1 {
-                    return 1;
-                }
+        if available[len].contains(&&goal[(goal.len() - len - 1)..]) {
+            if let Some(x) = map.get(&goal[..(goal.len() - len - 1)]) {
+                total += x;
             } else {
-                if let Some(x) = map.get(t) {
-                    total += x;
-                } else {
-                    let temp = check(available, t, r, map);
-                    total += temp;
-                    map.insert(t, temp);
-                }
+                let temp = check(available, &goal[..(goal.len() - len - 1)], r, map);
+                map.insert(&goal[..(goal.len() - len - 1)], temp);
+                total += temp;
             }
         }
     }
     total
+
+    // if goal.is_empty() {
+    //     return 1;
+    // }
+    // if goal.len() <= available.len() {
+    //     if available[goal.len() - 1].contains(&goal) {
+    //         return 1;
+    //     }
+    // }
+    // let mut total = 0;
+    // for len in 0..8 {
+    //     if len >= goal.len() {
+    //         if available[len].contains(&goal) {
+    //             return 1;
+    //         }
+    //         return 0;
+    //     }
+    //     if available[len].contains(&&goal[goal.len() - len - 1..]) {
+    //         let t = &goal[..(goal.len() - len - 1)];
+    //         if let Some(x) = map.get(t) {
+    //             total += x;
+    //         } else {
+    //             let temp = check(available, t, r, map);
+    //             total += temp;
+    //             map.insert(t, temp);
+    //         }
+    //     }
+    // }
+    // total
 }
 
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
@@ -103,10 +120,8 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             .iter()
             .map(|x| x.as_bytes())
             .collect::<Vec<_>>();
-        desired.sort();
         let mut t = vec![vec![]; 8];
         for i in &available {
-            println!("{} {:?}", i.len(), i);
             t[i.len() - 1].push(*i);
         }
         cleanup.push(now.elapsed().as_nanos());
@@ -120,7 +135,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         let now = Instant::now();
         let mut map = HashMap::new();
         for i in &desired {
-            part2 += check(&available, i, false, &mut map);
+            part2 += check(&t, i, false, &mut map);
         }
         part2t.push(now.elapsed().as_nanos());
     }
