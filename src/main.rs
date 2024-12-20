@@ -1,3 +1,4 @@
+mod awawa;
 mod day1;
 mod day10;
 mod day11;
@@ -86,6 +87,7 @@ fn main() {
     // day18::run();
     // performance(day19::run(), 19);
     day20::run();
+    // awawa::test();
     let repeat = REPEAT.to_string().red();
     println!("Repeat: {repeat}");
 }
