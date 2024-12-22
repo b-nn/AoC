@@ -6,9 +6,9 @@ use std::fs;
 use std::time::Instant;
 
 fn cycle(mut input: &mut i64) {
-    *input = ((*input * 64) ^ *input) % 16777216;
-    *input = ((*input / 32) ^ *input) % 16777216;
-    *input = ((*input << 11) ^ *input) % 16777216;
+    *input = ((*input << 6) ^ *input) & 0xFFFFFF;
+    *input = ((*input >> 5) ^ *input) & 0xFFFFFF;
+    *input = ((*input << 11) ^ *input) & 0xFFFFFF;
 }
 
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
@@ -31,30 +31,32 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             .map(|x| x.parse::<i64>().expect("unable to parse"))
             .collect::<Vec<_>>();
         let mut hash_total = HashMap::new();
-        let mut deltas: Vec<Vec<i64>> = vec![];
         cleanup.push(now.elapsed().as_nanos());
 
         let now = Instant::now();
-        for i in 0..pseudo.len() {
-            deltas.push(vec![]);
-            let mut hash = HashSet::new();
+        let mut hash = HashSet::new();
+        let mut v1 = 0;
+        let mut v2 = 0;
+        let mut v3 = 0;
+        let mut v4 = 0;
+        for mut i in pseudo {
+            hash.drain();
             for j in 0..2000 {
-                let last = pseudo[i];
-                cycle(&mut pseudo[i]);
-                deltas[i].push(pseudo[i] % 10 - last % 10);
+                let last = i;
+                cycle(&mut i);
+                v1 = v2;
+                v2 = v3;
+                v3 = v4;
+                v4 = i % 10 - last % 10 & 0b11111;
                 if j >= 3 {
-                    let key = (
-                        deltas[i][j - 3],
-                        deltas[i][j - 2],
-                        deltas[i][j - 1],
-                        deltas[i][j - 0],
-                    );
+                    let key = (v1 | v2 << 5 | v3 << 10 | v4 << 15);
                     if hash.get(&key).is_none() {
-                        *hash_total.entry(key).or_insert(0) += pseudo[i] % 10;
+                        *hash_total.entry(key).or_insert(0) += i % 10;
                         hash.insert(key);
                     }
                 }
             }
+            part1 += i;
         }
         for i in hash_total {
             if part2 < i.1 {
@@ -63,8 +65,6 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         }
         part1t.push(0);
         part2t.push(now.elapsed().as_nanos());
-
-        part1 = pseudo.iter().sum::<i64>();
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
