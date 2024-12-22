@@ -1,173 +1,93 @@
-use std::collections::{HashMap, VecDeque};
-use std::fs;
-use std::rc::Rc;
+mod day1;
+mod day10;
+mod day11;
+mod day12;
+mod day13;
+mod day14;
+mod day15;
+mod day16;
+mod day17;
+mod day18;
+mod day19;
+mod day2;
+mod day20;
+mod day22;
+mod day3;
+mod day4;
+mod day5;
+mod day6;
+mod day7;
+mod day8;
+mod day9;
+const REPEAT: i32 = 1;
+use colored::{ColoredString, Colorize};
 
-pub const DIRS: [(i32, i32); 4] = [(1, 0), (0, 1), (-1, 0), (0, -1)];
-
-const NUMERIC: [[u8; 3]; 4] = [
-    [b'7', b'8', b'9'],
-    [b'4', b'5', b'6'],
-    [b'1', b'2', b'3'],
-    [b' ', b'0', b'A'],
-];
-
-const DIRECTIONAL: [[u8; 3]; 2] = [[b' ', b'^', b'A'], [b'<', b'v', b'>']];
-
-fn find_shortest_paths(
-    keypad: &[[u8; 3]],
-    from: u8,
-    to: u8,
-    cache: &mut HashMap<(u8, u8), Rc<Vec<Vec<u8>>>>,
-) -> Rc<Vec<Vec<u8>>> {
-    if let Some(cached) = cache.get(&(from, to)) {
-        return cached.clone();
-    }
-
-    if from == to {
-        let result = Rc::new(vec![vec![b'A']]);
-        cache.insert((from, to), result.clone());
-        return result;
-    }
-
-    // find 'from' and 'to' on keypad
-    let mut start = (0, 0);
-    let mut end = (0, 0);
-    for (y, row) in keypad.iter().enumerate() {
-        for (x, &c) in row.iter().enumerate() {
-            if c == from {
-                start = (x, y);
-            }
-            if c == to {
-                end = (x, y);
-            }
-        }
-    }
-
-    // flood fill keypad to find the shortest distances
-    let mut dists = vec![[usize::MAX; 3]; keypad.len()];
-    let mut queue = VecDeque::new();
-    queue.push_back((start.0, start.1, 0));
-
-    while let Some((x, y, steps)) = queue.pop_front() {
-        dists[y][x] = steps;
-        for (dx, dy) in DIRS {
-            let nx = x as i32 + dx;
-            let ny = y as i32 + dy;
-            if nx >= 0
-                && ny >= 0
-                && nx < 3
-                && ny < keypad.len() as i32
-                && keypad[ny as usize][nx as usize] != b' '
-                && dists[ny as usize][nx as usize] == usize::MAX
-            {
-                queue.push_back((nx as usize, ny as usize, steps + 1));
-            }
-        }
-    }
-
-    // backtrack from 'end' back to 'start' and collect all paths
-    let mut paths = Vec::new();
-    let mut stack = Vec::new();
-    stack.push((end.0, end.1, vec![b'A']));
-    while let Some((x, y, path)) = stack.pop() {
-        if x == start.0 && y == start.1 {
-            paths.push(path);
-            continue;
-        }
-        for (i, (dx, dy)) in DIRS.iter().enumerate() {
-            let nx = x as i32 + dx;
-            let ny = y as i32 + dy;
-            if nx >= 0
-                && ny >= 0
-                && nx < 3
-                && ny < keypad.len() as i32
-                && dists[ny as usize][nx as usize] < dists[y][x]
-            {
-                // do everything in reverse
-                let c = match i {
-                    0 => b'<',
-                    1 => b'^',
-                    2 => b'>',
-                    3 => b'v',
-                    _ => panic!(),
-                };
-                let mut new_path = vec![c];
-                new_path.extend(&path);
-                stack.push((nx as usize, ny as usize, new_path));
-            }
-        }
-    }
-
-    let result = Rc::new(paths);
-    cache.insert((from, to), result.clone());
-    result
+fn performance(
+    ((x, y), (mut t1, mut t2, mut t3, mut t4)): (
+        (i64, i64),
+        (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>),
+    ),
+    day: i64,
+) {
+    t1.sort();
+    t2.sort();
+    t3.sort();
+    t4.sort();
+    let day = match day % 5 {
+        0 => format!("Day {}", day).red(),
+        1 => format!("Day {}", day).yellow(),
+        2 => format!("Day {}", day).blue(),
+        3 => format!("Day {}", day).magenta(),
+        4 => format!("Day {}", day).cyan(),
+        _ => format!("Day {}", day).black(),
+    };
+    let plusminus = format!("±").red();
+    let text = format!(
+        "{day} Part 1: {} Part 2: {}
+{day} Read: {}μs {plusminus}{}μs 
+{day} Cleanup: {}μs {plusminus}{}μs 
+{day} Part 1: {}μs {plusminus}{}μs 
+{day} Part 2: {}μs {plusminus}{}μs ",
+        x.to_string().green(),
+        y.to_string().green(),
+        c(t1[(REPEAT / 2) as usize] as f64 / 1000.0),
+        c(t1[(REPEAT / 2) as usize] as f64 / 1000.0 - t1[(REPEAT / 10) as usize] as f64 / 1000.0),
+        c(t2[(REPEAT / 2) as usize] as f64 / 1000.0),
+        c(t2[(REPEAT / 2) as usize] as f64 / 1000.0 - t2[(REPEAT / 10) as usize] as f64 / 1000.0),
+        c(t3[(REPEAT / 2) as usize] as f64 / 1000.0),
+        c(t3[(REPEAT / 2) as usize] as f64 / 1000.0 - t3[(REPEAT / 10) as usize] as f64 / 1000.0),
+        c(t4[(REPEAT / 2) as usize] as f64 / 1000.0),
+        c(t4[(REPEAT / 2) as usize] as f64 / 1000.0 - t4[(REPEAT / 10) as usize] as f64 / 1000.0),
+    );
+    println!("{}", text);
 }
 
-fn find_shortest_sequence(
-    s: &[u8],
-    depth: usize,
-    highest: bool,
-    cursors: &mut Vec<u8>,
-    cache: &mut HashMap<(Vec<u8>, usize, u8), usize>,
-    path_cache: &mut HashMap<(u8, u8), Rc<Vec<Vec<u8>>>>,
-) -> usize {
-    let cache_key = (s.to_vec(), depth, cursors[depth]);
-    if let Some(cached) = cache.get(&cache_key) {
-        return *cached;
-    }
-
-    let mut result = 0;
-    for &c in s {
-        let paths = find_shortest_paths(
-            if highest { &NUMERIC } else { &DIRECTIONAL },
-            cursors[depth],
-            c,
-            path_cache,
-        );
-        if depth == 0 {
-            // all paths have the same length
-            result += paths[0].len();
-        } else {
-            result += paths
-                .iter()
-                .map(|p| find_shortest_sequence(p, depth - 1, false, cursors, cache, path_cache))
-                .min()
-                .unwrap();
-        }
-        cursors[depth] = c;
-    }
-
-    cache.insert(cache_key, result);
-
-    result
+fn c(value: f64) -> ColoredString {
+    format!("{:.2}", value).green()
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").expect("Could not read file");
-    let lines = input.lines().collect::<Vec<_>>();
-
-    let mut cache = HashMap::new();
-    let mut path_cache = HashMap::new();
-
-    for part1 in [true, false] {
-        let max_depth = if part1 { 1 } else { 25 };
-
-        let mut total = 0;
-        for l in &lines {
-            let mut cursors = vec![b'A'; max_depth + 1];
-            let len = find_shortest_sequence(
-                l.as_bytes(),
-                max_depth,
-                true,
-                &mut cursors,
-                &mut cache,
-                &mut path_cache,
-            );
-
-            let n = l[0..3].parse::<usize>().unwrap();
-            println!("{}", len);
-            total += n * len;
-        }
-        println!("{}", total);
-    }
+    // performance(day1::run(), 1);
+    // performance(day2::run(), 2);
+    // performance(day3::run(), 3);
+    // performance(day4::run(), 4);
+    // performance(day5::run(), 5);
+    // performance(day6::run(), 6);
+    // performance(day7::run(), 7);
+    // performance(day8::run(), 8);
+    // performance(day9::run(), 9);
+    // performance(day10::run(), 10);
+    // performance(day11::run(), 11);
+    // performance(day12::run(), 12);
+    // performance(day13::run(), 13);
+    // performance(day14::run(), 14);
+    // performance(day15::run(), 15);
+    // performance(day16::run(), 16);
+    // performance(day17::run(), 17);
+    // day18::run();
+    // performance(day19::run(), 19);
+    // performance(day20::run(), 20);
+    performance(day22::run(), 22);
+    let repeat = REPEAT.to_string().red();
+    println!("Repeat: {repeat}");
 }
