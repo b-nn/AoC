@@ -1,8 +1,10 @@
 use crate::REPEAT;
+use colored::control;
 use itertools::Itertools;
 use petgraph::csr::IndexType;
 use petgraph::graph::NodeIndex;
 use petgraph::graph::UnGraph;
+use petgraph::visit::IntoNeighbors;
 use petgraph::visit::NodeRef;
 use std::fs;
 use std::time::Instant;
@@ -19,8 +21,15 @@ fn bron_kerbosch(
         cliques.push(r);
         return cliques;
     }
+
+    let pivot = [p.clone(), x.clone()].concat()[0];
+    let pivot_neighbors = graph.neighbors(pivot).collect::<Vec<_>>();
+
     for index in (0..t).rev() {
         let vertex = p[index];
+        if pivot_neighbors.contains(&vertex) {
+            continue;
+        }
         let neighbors = graph.neighbors(vertex).collect::<Vec<_>>();
         let mut rtemp = r.clone();
         rtemp.push(vertex);
@@ -57,8 +66,9 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         let content =
             fs::read_to_string("day23.txt").expect("THERE'S NO INPUT WHAT THE FUCKKKKKKKK");
         read.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
         let mut nodes = UnGraph::<&str, &str>::new_undirected();
-        let mut n: Vec<&str> = vec![];
         for i in content.lines() {
             let mut t = i.split('-').into_iter();
             let temp = t.next().unwrap();
@@ -75,15 +85,13 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             };
             nodes.extend_with_edges(&[(n1, n2)]);
         }
-        let t = nodes.node_indices();
-        for i in nodes.neighbors(NodeIndex::new(0)) {
-            println!("{:?}", nodes.node_weight(i));
-        }
+        cleanup.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
         let mut startswitht = vec![];
         for i in nodes.node_indices() {
             if nodes[i].chars().nth(0) == Some('t') {
                 startswitht.push(i);
-                println!("{} {:?}", nodes[i], i);
             }
         }
         let mut groupings = vec![];
@@ -101,6 +109,9 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 }
             }
         }
+        part1t.push(now.elapsed().as_nanos());
+
+        let now = Instant::now();
         let cliques = bron_kerbosch(
             vec![],
             nodes.node_indices().collect::<Vec<_>>(),
@@ -109,7 +120,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
         );
         let mut pass = "".to_owned();
         let mut len = 0;
-        for mut i in cliques {
+        for i in cliques {
             if i.len() > len {
                 pass = "".to_owned();
                 len = i.len();
@@ -121,15 +132,10 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 }
             }
         }
-        println!("password is {}", pass);
-        // for node in nodes.neighbors(NodeIndex::new(5)) {
-        //     println!("neighbor {}", nodes[node]);
-        // }
-        // for i in &groupings {
-        //     println!("group {:?}", i);
-        // }
-        println!("{}", groupings.len());
-        println!("RAN");
+        pass.remove(pass.len() - 1);
+        part2t.push(now.elapsed().as_nanos());
+        part1 = groupings.len() as i64;
+        println!("Part 2 is {}", pass);
     }
 
     ((part1, part2), (read, cleanup, part1t, part2t))
