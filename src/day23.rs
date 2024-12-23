@@ -7,6 +7,43 @@ use petgraph::visit::NodeRef;
 use std::fs;
 use std::time::Instant;
 
+fn bron_kerbosch(
+    r: Vec<NodeIndex>,
+    mut p: Vec<NodeIndex>,
+    mut x: Vec<NodeIndex>,
+    graph: &UnGraph<&str, &str>,
+) -> Vec<Vec<NodeIndex>> {
+    let t = p.len();
+    let mut cliques = vec![];
+    if p.is_empty() && x.is_empty() {
+        cliques.push(r);
+        return cliques;
+    }
+    for index in (0..t).rev() {
+        let vertex = p[index];
+        let neighbors = graph.neighbors(vertex).collect::<Vec<_>>();
+        let mut rtemp = r.clone();
+        rtemp.push(vertex);
+        let mut ptemp = p.clone();
+        for i in (0..ptemp.len()).rev() {
+            if !neighbors.contains(&ptemp[i]) {
+                ptemp.remove(i);
+            }
+        }
+        let mut xtemp = x.clone();
+        for i in (0..xtemp.len()).rev() {
+            if !neighbors.contains(&xtemp[i]) {
+                xtemp.remove(i);
+            }
+        }
+        cliques.append(&mut bron_kerbosch(rtemp, ptemp, xtemp, graph));
+        x.push(vertex);
+        p.remove(index);
+    }
+
+    cliques
+}
+
 pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
     let mut read: Vec<u128> = vec![];
     let mut cleanup: Vec<u128> = vec![];
@@ -38,6 +75,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
             };
             nodes.extend_with_edges(&[(n1, n2)]);
         }
+        let t = nodes.node_indices();
         for i in nodes.neighbors(NodeIndex::new(0)) {
             println!("{:?}", nodes.node_weight(i));
         }
@@ -63,12 +101,33 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                 }
             }
         }
-        for node in nodes.neighbors(NodeIndex::new(5)) {
-            println!("neighbor {}", nodes[node]);
+        let cliques = bron_kerbosch(
+            vec![],
+            nodes.node_indices().collect::<Vec<_>>(),
+            vec![],
+            &nodes,
+        );
+        let mut pass = "".to_owned();
+        let mut len = 0;
+        for mut i in cliques {
+            if i.len() > len {
+                pass = "".to_owned();
+                len = i.len();
+                let mut weights = i.iter().map(|x| nodes[*x]).collect::<Vec<_>>();
+                weights.sort();
+                for j in weights {
+                    pass.push_str(j);
+                    pass.push(',');
+                }
+            }
         }
-        for i in &groupings {
-            println!("group {:?}", i);
-        }
+        println!("password is {}", pass);
+        // for node in nodes.neighbors(NodeIndex::new(5)) {
+        //     println!("neighbor {}", nodes[node]);
+        // }
+        // for i in &groupings {
+        //     println!("group {:?}", i);
+        // }
         println!("{}", groupings.len());
         println!("RAN");
     }
