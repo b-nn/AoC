@@ -131,6 +131,7 @@ pub fn run() -> ((i64, i64), (Vec<u128>, Vec<u128>, Vec<u128>, Vec<u128>)) {
                     pass.push(',');
                 }
             }
+            println!("{}", i.len());
         }
         pass.remove(pass.len() - 1);
         part2t.push(now.elapsed().as_nanos());

@@ -21,7 +21,7 @@ mod day6;
 mod day7;
 mod day8;
 mod day9;
-const REPEAT: i32 = 1;
+const REPEAT: i32 = 10000;
 use colored::{ColoredString, Colorize};
 
 fn performance(
@@ -53,13 +53,13 @@ fn performance(
         x.to_string().green(),
         y.to_string().green(),
         c(t1[(REPEAT / 2) as usize] as f64 / 1000.0),
-        c(t1[(REPEAT / 2) as usize] as f64 / 1000.0 - t1[(REPEAT / 10) as usize] as f64 / 1000.0),
+        c(t1[(REPEAT / 2) as usize] as f64 / 1000.0 - t1[(REPEAT / 20) as usize] as f64 / 1000.0),
         c(t2[(REPEAT / 2) as usize] as f64 / 1000.0),
-        c(t2[(REPEAT / 2) as usize] as f64 / 1000.0 - t2[(REPEAT / 10) as usize] as f64 / 1000.0),
+        c(t2[(REPEAT / 2) as usize] as f64 / 1000.0 - t2[(REPEAT / 20) as usize] as f64 / 1000.0),
         c(t3[(REPEAT / 2) as usize] as f64 / 1000.0),
-        c(t3[(REPEAT / 2) as usize] as f64 / 1000.0 - t3[(REPEAT / 10) as usize] as f64 / 1000.0),
+        c(t3[(REPEAT / 2) as usize] as f64 / 1000.0 - t3[(REPEAT / 20) as usize] as f64 / 1000.0),
         c(t4[(REPEAT / 2) as usize] as f64 / 1000.0),
-        c(t4[(REPEAT / 2) as usize] as f64 / 1000.0 - t4[(REPEAT / 10) as usize] as f64 / 1000.0),
+        c(t4[(REPEAT / 2) as usize] as f64 / 1000.0 - t4[(REPEAT / 20) as usize] as f64 / 1000.0),
     );
     println!("{}", text);
 }
@@ -91,7 +91,7 @@ fn main() {
     // performance(day20::run(), 20);
     // performance(day22::run(), 22);
     // performance(day23::run(), 23);
-    day21::run();
+    performance(day21::run(), 21);
     let repeat = REPEAT.to_string().red();
     println!("Repeat: {repeat}");
 }
